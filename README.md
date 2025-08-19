@@ -154,11 +154,22 @@ ORDER BY
 
 ### Data Visualization (Python)
 
-A Python script (`visualize_data.py`) connects to the MySQL database, executes the core analysis query, loads the results into a Pandas DataFrame, and generates compelling visualizations using Matplotlib and Seaborn. These plots are saved as PNG files.
 
-  * `mental_health_scores_by_year.png`: Line plot showing average anxiety, depression, and panic attack scores trending over year of study.
-  * `anxiety_by_gender_and_year.png`: Bar chart comparing average anxiety scores for male vs. female students by year of study.
-  * `anxiety_by_treatment_and_year.png`: Bar chart comparing average anxiety scores for students who sought treatment vs. those who did not, by year of study.
+A Python script (`visualize_data.py`) connects to the MySQL database, executes the core analysis query, loads the results into a Pandas DataFrame, and generates compelling visualizations using Matplotlib and Seaborn. These plots are saved as PNG files and displayed below:
+
+### Visualizations
+
+#### Mental Health Scores by Year
+![Mental Health Scores by Year](mental_health_scores_by_year.png)
+
+#### Anxiety by Gender and Year
+![Anxiety by Gender and Year](anxiety_by_gender_and_year.png)
+
+#### Anxiety by Treatment and Year
+![Anxiety by Treatment and Year](anxiety_by_treatment_and_year.png)
+
+#### Mental Health Scores by Stay
+![Mental Health Scores by Stay](mental_health_scores_by_stay.png)
 
 -----
 
