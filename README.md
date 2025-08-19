@@ -36,7 +36,6 @@ Stores static demographic information, linked to `students`.
 | `student_id`         | `INT`         | Primary Key and Foreign Key referencing `students(student_id)`       |
 | `age`                | `INT`         | Student's age                                                        |
 | `gender`             | `VARCHAR(10)` | Student's gender (e.g., 'Male', 'Female', 'Non-binary')              |
-| `country_of_origin`  | `VARCHAR(50)` | Student's country of origin                                          |
 | `program_of_study`   | `VARCHAR(100)`| Academic program/major                                               |
 | **Constraint** |               | `FOREIGN KEY (student_id) REFERENCES students(student_id)` (CASCADE) |
 
@@ -77,23 +76,121 @@ CREATE TABLE students (
 
 -- Create demographics table with Foreign Key to students
 CREATE TABLE demographics (
-    student_id INT PRIMARY KEY,
+    student_id INT PRIMARY KEY, -- FK to students
     age INT,
     gender VARCHAR(10),
-    country_of_origin VARCHAR(50),
-    program_of_study VARCHAR(100),
+    program_of_study VARCHAR(100), -- From 'What is your course?'
     CONSTRAINT fk_student_demographics FOREIGN KEY (student_id) REFERENCES students(student_id)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Create surveys table with Foreign Key to students
+-- Create surveys table with Foreign Key to students and new fields
 CREATE TABLE surveys (
     survey_id INT PRIMARY KEY AUTO_INCREMENT,
-    student_id INT,
-    survey_date DATE,
-    anxiety_score INT,
-    depression_score INT,
-    social_connectedness_score INT,
+    student_id INT, -- FK to students
+    survey_date DATETIME, -- From 'Timestamp', now DATETIME
+    year_of_study INT, -- From 'Your current year of Study'
+    cypa_range VARCHAR(50), -- From 'What is your CGPA?'
+    marital_status VARCHAR(20), -- From 'Marital status'
+    anxiety_score INT,        -- 'Yes'/'No' converted to 1/0
+    depression_score INT,     -- 'Yes'/'No' converted to 1/0
+    panic_attack_score INT,   -- 'Yes'/'No' converted to 1/0 (NEW)
+    sought_treatment INT,     -- 'Yes'/'No' converted to 1/0 (NEW)
     CONSTRAINT fk_student_surveys FOREIGN KEY (student_id) REFERENCES students(student_id)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
+````
+
+### Sample Data Insertion (SQL)
+
+Sample data for `students`, `demographics`, and `surveys` tables is inserted to populate the database and enable comprehensive analysis. *(Full INSERT statements are omitted for brevity in this README but are available in the project's SQL files, e.g., `insert_data.sql`.)*
+
+### Core Advanced Analysis Query (SQL using CTEs, JOINS, Date Functions, Conditional Aggregation)
+
+This query pulls data from all three tables, dynamically calculates `length_of_stay_months`, filters for international students, and aggregates average mental health scores, including a gender-based breakdown, grouped by length of stay.
+
+```sql
+USE student_mental_health;
+
+WITH StudentSurveyData AS (
+    SELECT
+        s.student_id,
+        d.age,
+        d.gender,
+        d.program_of_study,
+        su.survey_date,
+        su.year_of_study,
+        su.cypa_range, -- Corrected column name from 'cgpa_range' in previous iterations
+        su.marital_status,
+        su.anxiety_score,
+        su.depression_score,
+        su.panic_attack_score,
+        su.sought_treatment
+    FROM
+        students s
+    INNER JOIN
+        demographics d ON s.student_id = d.student_id
+    INNER JOIN
+        surveys su ON s.student_id = su.student_id
+)
+SELECT
+    year_of_study,
+    COUNT(DISTINCT student_id) AS number_of_students,
+    AVG(anxiety_score) AS average_anxiety_score,
+    AVG(depression_score) AS average_depression_score,
+    AVG(panic_attack_score) AS average_panic_attack_score,
+    -- AVG(social_connectedness_score) AS average_social_connectedness_score, -- Removed as this column is not in the dataset
+    AVG(CASE WHEN gender = 'Male' THEN anxiety_score END) AS avg_anxiety_male,
+    AVG(CASE WHEN gender = 'Female' THEN anxiety_score END) AS avg_anxiety_female,
+    AVG(CASE WHEN sought_treatment = 1 THEN anxiety_score END) AS avg_anxiety_sought_treatment,
+    AVG(CASE WHEN sought_treatment = 0 THEN anxiety_score END) AS avg_anxiety_not_sought_treatment
+FROM
+    StudentSurveyData
+GROUP BY
+    year_of_study
+ORDER BY
+    year_of_study;
+```
+
+### Data Visualization (Python)
+
+A Python script (`visualize_data.py`) connects to the MySQL database, executes the core analysis query, loads the results into a Pandas DataFrame, and generates compelling visualizations using Matplotlib and Seaborn. These plots are saved as PNG files.
+
+  * `mental_health_scores_by_year.png`: Line plot showing average anxiety, depression, and panic attack scores trending over year of study.
+  * `anxiety_by_gender_and_year.png`: Bar chart comparing average anxiety scores for male vs. female students by year of study.
+  * `anxiety_by_treatment_and_year.png`: Bar chart comparing average anxiety scores for students who sought treatment vs. those who did not, by year of study.
+
+-----
+
+## 4\. Key Findings & Observations
+
+*(**IMPORTANT: Fill this section with YOUR specific observations** from the plots you generated. Describe the trends you see. For example: "The analysis revealed that average anxiety and depression scores for students were highest during their initial year of study, showing a gradual decline thereafter. Conversely, social connectedness scores appeared to improve significantly after 6 months. Gender-based analysis... [add your observations for the second plot].")*
+
+-----
+
+## 5\. Potential Challenges & Learning
+
+  * **Database Normalization:** Designing and implementing a multi-table schema with correct primary and foreign key relationships for data integrity.
+  * **Complex SQL:** Mastering `JOIN` clauses, dynamic date calculations (`TIMESTAMPDIFF`), and advanced aggregation techniques (`CASE` statements within `AVG()`, CTEs, and Window Functions) for nuanced analysis.
+  * **Data Integration & Visualization:** Connecting MySQL to Python, querying data programmatically, and using data science libraries (Pandas, Matplotlib, Seaborn) to transform raw data into insightful visualizations.
+  * **Data Interpretation:** Drawing meaningful conclusions from aggregated and visualized data, especially with synthetic datasets.
+
+-----
+
+## 6\. Real-World Considerations & Future Enhancements
+
+  * **Data Privacy:** In a real-world scenario, student mental health data is highly sensitive. Strict anonymization protocols and adherence to privacy regulations (e.g., GDPR, FERPA) would be paramount.
+  * **Limitations of Synthetic Data:** The findings in this project are based on a small, synthetic dataset. Real-world insights would require a larger, validated, and ethically sourced dataset.
+  * **Scalability:** For much larger datasets, optimizing queries with appropriate **indexing** (e.g., on `is_international`, `survey_date`, `enrollment_date`) and analyzing query performance using `EXPLAIN` would be critical.
+
+**Future Enhancements:**
+
+  * **Predictive Modeling:** Use Python's machine learning libraries (e.g., scikit-learn) to build models that predict mental health risk based on demographic factors and length of stay.
+  * **Interactive Dashboard:** Create an interactive web dashboard (e.g., using Dash or Streamlit in Python, or a BI tool like Tableau/Power BI) to allow users to explore the data dynamically.
+  * **Expanded Data:** Incorporate more granular data, such as academic performance, financial aid status, or participation in campus activities, to enrich the analysis.
+  * **API Development:** Build a simple API using a framework like Flask or FastAPI in Python to expose the analytical results, allowing other applications to consume this data.
+
+<!-- end list -->
+
+```
+```

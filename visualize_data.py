@@ -25,7 +25,7 @@ try:
             d.program_of_study,
             su.survey_date,
             su.year_of_study,
-            su.cgpa_range,
+            su.cypa_range,
             su.marital_status,
             su.anxiety_score,
             su.depression_score,
@@ -60,6 +60,16 @@ try:
     results = cursor.fetchall()
     column_names = [i[0] for i in cursor.description]
     df_analysis = pd.DataFrame(results, columns=column_names)
+
+    # Convert all relevant average columns to numeric (float), then fill NaN with 0
+    numeric_cols_for_plot = [
+    'average_anxiety_score', 'average_depression_score', 'average_panic_attack_score',
+    'avg_anxiety_male', 'avg_anxiety_female',
+    'avg_anxiety_sought_treatment', 'avg_anxiety_not_sought_treatment'
+]
+
+    for col in numeric_cols_for_plot:
+        df_analysis[col] = pd.to_numeric(df_analysis[col], errors='coerce').fillna(0)
 
     print("Data fetched successfully and loaded into DataFrame for analysis:")
     print(df_analysis)
