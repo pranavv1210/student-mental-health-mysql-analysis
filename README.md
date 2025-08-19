@@ -189,8 +189,4 @@ A Python script (`visualize_data.py`) connects to the MySQL database, executes t
   * **Interactive Dashboard:** Create an interactive web dashboard (e.g., using Dash or Streamlit in Python, or a BI tool like Tableau/Power BI) to allow users to explore the data dynamically.
   * **Expanded Data:** Incorporate more granular data, such as academic performance, financial aid status, or participation in campus activities, to enrich the analysis.
   * **API Development:** Build a simple API using a framework like Flask or FastAPI in Python to expose the analytical results, allowing other applications to consume this data.
-
-<!-- end list -->
-
-```
 ```
