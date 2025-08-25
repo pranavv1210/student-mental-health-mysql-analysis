@@ -173,13 +173,9 @@ A Python script (`visualize_data.py`) connects to the MySQL database, executes t
 
 -----
 
-## 4\. Key Findings & Observations
 
-*(**IMPORTANT: Fill this section with YOUR specific observations** from the plots you generated. Describe the trends you see. For example: "The analysis revealed that average anxiety and depression scores for students were highest during their initial year of study, showing a gradual decline thereafter. Conversely, social connectedness scores appeared to improve significantly after 6 months. Gender-based analysis... [add your observations for the second plot].")*
 
------
-
-## 5\. Potential Challenges & Learning
+## 4\. Potential Challenges & Learning
 
   * **Database Normalization:** Designing and implementing a multi-table schema with correct primary and foreign key relationships for data integrity.
   * **Complex SQL:** Mastering `JOIN` clauses, dynamic date calculations (`TIMESTAMPDIFF`), and advanced aggregation techniques (`CASE` statements within `AVG()`, CTEs, and Window Functions) for nuanced analysis.
@@ -188,7 +184,7 @@ A Python script (`visualize_data.py`) connects to the MySQL database, executes t
 
 -----
 
-## 6\. Real-World Considerations & Future Enhancements
+## 5\. Real-World Considerations & Future Enhancements
 
   * **Data Privacy:** In a real-world scenario, student mental health data is highly sensitive. Strict anonymization protocols and adherence to privacy regulations (e.g., GDPR, FERPA) would be paramount.
   * **Limitations of Synthetic Data:** The findings in this project are based on a small, synthetic dataset. Real-world insights would require a larger, validated, and ethically sourced dataset.
